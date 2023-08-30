@@ -1,0 +1,60 @@
+{
+  "tables": [
+    {
+      "seats": [
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" }
+      ]
+    },
+    {
+      "seats": [
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" }
+      ]
+    },
+    {
+      "seats": [
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" }
+      ]
+    },
+    {
+      "seats": [
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" },
+        { "isOccupied": false, "guestName": "" }
+      ]
+    }
+  ]
+}

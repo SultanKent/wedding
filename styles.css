@@ -8,8 +8,11 @@ body {
   font-family: Arial, sans-serif;
 }
 
-h1 {
+.stage-header>h1 {
   margin-bottom: 20px;
+  color: #B93B3B;
+  font-family: Playfair Display;
+  font-size: 30px;
 }
 
 .stage-container {
@@ -20,24 +23,38 @@ h1 {
 
 .stage-indicators {
   margin-bottom: 11px;
+  display: flex;
+  gap: 80px;
+}
+
+.stage-indicator {
+  display: block;
+  border-radius: 50%;
+  text-align: center;
+  padding: 12px 18px;
+  border: 1px solid black;
 }
 
 .stage-indicator.active {
-  color: red;
+  border: 1px solid #B93B3B;
 }
 
 .table-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 400px;
-  margin: 0 auto;
-  gap: 48px;
+  text-align: center;
 }
 
 .table-grid>button {
-  position: absolute;
-  bottom: 65px;
+  position: relative;
+  top: 45px;
+}
+
+.tables {
+  display: flex;
+  gap: 68px;
+}
+
+.tables:nth-child(1) {
+  margin-bottom: 48px;
 }
 
 .table {
@@ -45,13 +62,14 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 2px solid #000;
-  border-radius: 10px;
+  border-radius: 6px;
+  background: #FDD;
+  box-shadow: 4px 6px 21px 0px rgba(0, 0, 0, 0.10), -4px -6px 13px 0px rgba(0, 0, 0, 0.10);
   margin: 10px;
   padding: 10px;
   background-color: #f0f0f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 115px;
+  text-align: center;
   height: 180px;
 }
 

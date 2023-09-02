@@ -2,58 +2,298 @@
   "tables": [
     {
       "seats": [
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" }
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        }
       ]
     },
     {
       "seats": [
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" }
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        }
+      ]
+    },
+    {
+      "seats":[
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        }
       ]
     },
     {
       "seats": [
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" }
-      ]
-    },
-    {
-      "seats": [
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" },
-        { "isOccupied": false, "guestName": "" }
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        },
+        {
+          "isOccupied": false,
+          "guestName": "",
+          "gender": "",
+          "age": 0,
+          "photo": ""
+        }
       ]
     }
   ]

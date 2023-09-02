@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-analytics.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-database.js";
-    
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-storage.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyAXPOZS9BqL_3K7_1WkTIit4KO5rwxb7uE",
       authDomain: "wedding-edec2.firebaseapp.com",
@@ -16,28 +17,29 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebas
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getDatabase();
+    const storage = getStorage();
     const stageIndicators = document.querySelectorAll('.stage-indicator');
     const backButton = document.createElement('button');
     backButton.textContent = 'Назад';
     const tableGrid = document.getElementById('table-grid');
+    const stageHeader = document.getElementById('stage-header');
+    const tableInfo = document.createElement('p');
     
-    // Переменные для хранения текущего этапа и выбранных стола и сиденья
     let currentStage = 1;
     let selectedTable = null;
     let selectedSeat = null;
 
     function updateStageDisplay() {
-  stageIndicators.forEach(indicator => {
-    const stage = parseInt(indicator.getAttribute('data-stage'));
-    if (stage === currentStage) {
-      indicator.classList.add('active');
-    } else {
-      indicator.classList.remove('active');
+      stageIndicators.forEach(indicator => {
+        const stage = parseInt(indicator.getAttribute('data-stage'));
+        if (stage === currentStage) {
+          indicator.classList.add('active');
+        } else {
+          indicator.classList.remove('active');
+        }
+      });
     }
-  });
-}
 
-    
     function updateSeatStatus(tableIndex, seatIndex, isOccupied, guestName) {
       const seatRef = ref(db, `tables/${tableIndex}/seats/${seatIndex}`);
       const newSeatData = {
@@ -57,84 +59,109 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebas
           console.error('Error updating seat status:', error);
         });
     }
-    
+
     function showTables() {
       currentStage = 1;
       tableGrid.innerHTML = '';
+      stageHeader.innerHTML = '<h1>Выберите стол</h1>';
       const totalTables = 4;
-      for (let tableIndex = 0; tableIndex < totalTables; tableIndex++) {
-        const tableElement = document.createElement('div');
-        tableElement.className = 'table';
-        tableElement.textContent = `Стол ${tableIndex + 1}`;
-        tableElement.addEventListener('click', () => {
-          selectedTable = tableIndex;
-          showSeats();
-        });
-        tableGrid.appendChild(tableElement);
-        updateStageDisplay();
-      }
-    }
-    
-  function showSeats() {
-  currentStage = 2;
-  tableGrid.innerHTML = '';
+      const tablesContainer = document.createElement('div');
+      tablesContainer.className = 'tables-container';
 
-  // Создаем div с классом 'seats-content'
-  const seatsContent = document.createElement('div');
-  seatsContent.className = 'seats-content';
+      for (let i = 0; i < 2; i++) {
+        const tables = document.createElement('div');
+        tables.className = 'tables';
+        for (let tableIndex = 0; tableIndex < 2; tableIndex++) {
+          const tableElement = document.createElement('div');
+          tableElement.className = 'table';
+          tableElement.textContent = `Стол ${i * 2 + tableIndex + 1}`;
 
-  // Создаем два контейнера для сиденьй
-  const seatsContainer1 = document.createElement('div');
-  seatsContainer1.className = 'seats';
-  const seatsContainer2 = document.createElement('div');
-  seatsContainer2.className = 'seats';
-
-  const seatsPerTable = 10;
-  const tableRef = ref(db, `tables/${selectedTable}`);
-  get(tableRef).then(snapshot => {
-    const tableData = snapshot.val();
-    if (tableData && tableData.seats) {
-      // Разделяем сиденья на два контейнера (по 5 сиденьй в каждом)
-      for (let seatIndex = 0; seatIndex < seatsPerTable; seatIndex++) {
-        const seatElement = document.createElement('div');
-        seatElement.className = 'seat';
-        seatElement.textContent = `Сиденье ${seatIndex + 1}`;
-        
-        if (seatIndex < 5) {
-          seatsContainer1.appendChild(seatElement);
-        } else {
-          seatsContainer2.appendChild(seatElement);
-        }
-
-        if (!tableData.seats[seatIndex].isOccupied) {
-          seatElement.addEventListener('click', () => {
-            selectedSeat = seatIndex;
-            showUserInfoForm();
+          const tableRef = ref(db, `tables/${i * 2 + tableIndex}`);
+          get(tableRef).then(snapshot => {
+            const tableData = snapshot.val();
+            if (tableData && tableData.seats) {
+              const totalSeats = tableData.seats.length;
+              let occupiedSeats = 0;
+              for (let seat of tableData.seats) {
+                if (seat.isOccupied) {
+                  occupiedSeats++;
+                }
+              }
+              const availableSeats = totalSeats - occupiedSeats;
+              const availabilityInfo = document.createElement('p');
+              availabilityInfo.textContent = `Свободно ${availableSeats}/${totalSeats} мест`;
+              tableElement.appendChild(availabilityInfo);
+            }
           });
-        } else {
-          seatElement.classList.add('occupied');
-          seatElement.textContent = tableData.seats[seatIndex].guestName;
+
+          tableElement.addEventListener('click', () => {
+            selectedTable = i * 2 + tableIndex;
+            showSeats();
+          });
+
+          tables.appendChild(tableElement);
         }
+        tablesContainer.appendChild(tables);
       }
-      seatsContent.appendChild(seatsContainer1);
-      seatsContent.appendChild(seatsContainer2);
 
-      // Добавляем seatsContent в tableGrid
-      tableGrid.appendChild(seatsContent);
-
-      backButton.removeEventListener('click', showSeats);
-      backButton.removeEventListener('click', showUserInfoForm);
-      backButton.addEventListener('click', showTables); // Возврат к этапу 1
-      tableGrid.appendChild(backButton);
+      tableGrid.appendChild(tablesContainer);
       updateStageDisplay();
     }
-  });
-}
 
+    function showSeats() {
+      currentStage = 2;
+      tableGrid.innerHTML = '';
+      stageHeader.innerHTML = '<h1>Выберите место</h1>';
+      const seatsContent = document.createElement('div');
+      seatsContent.className = 'seats-content';
+      const seatsContainer1 = document.createElement('div');
+      seatsContainer1.className = 'seats';
+      const seatsContainer2 = document.createElement('div');
+      seatsContainer2.className = 'seats';
+      const seatsPerTable = 10;
+      const tableRef = ref(db, `tables/${selectedTable}`);
+      get(tableRef).then(snapshot => {
+        const tableData = snapshot.val();
+        if (tableData && tableData.seats) {
+          for (let seatIndex = 0; seatIndex < seatsPerTable; seatIndex++) {
+            const seatElement = document.createElement('div');
+            seatElement.className = 'seat';
+            seatElement.textContent = `Сиденье ${seatIndex + 1}`;
+            
+            if (seatIndex < 5) {
+              seatsContainer1.appendChild(seatElement);
+            } else {
+              seatsContainer2.appendChild(seatElement);
+            }
     
+            if (!tableData.seats[seatIndex].isOccupied) {
+              seatElement.addEventListener('click', () => {
+                selectedSeat = seatIndex;
+                showUserInfoForm();
+              });
+            } else {
+              seatElement.classList.add('occupied');
+              seatElement.textContent = tableData.seats[seatIndex].guestName;
+            }
+          }
+          seatsContent.appendChild(seatsContainer1);
+          seatsContent.appendChild(seatsContainer2);
+          tableInfo.textContent = `Стол ${selectedTable + 1}`;
+          tableGrid.appendChild(tableInfo);
+          tableGrid.appendChild(seatsContent);
+          backButton.removeEventListener('click', showSeats);
+          backButton.removeEventListener('click', showUserInfoForm);
+          backButton.addEventListener('click', showTables);
+          tableGrid.appendChild(backButton);
+          updateStageDisplay();
+        }
+      });
+    }
+
 function showUserInfoForm() {
   currentStage = 3;
   tableGrid.innerHTML = '';
+  stageHeader.innerHTML = '<h1>Введите данные</h1>';
 
   const formContainer = document.createElement('div');
   formContainer.className = 'form-container';
@@ -143,7 +170,7 @@ function showUserInfoForm() {
   nameLabel.textContent = 'Имя:';
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
-  
+
   const genderTitle = document.createElement('p');
   genderTitle.textContent = 'Ваш пол';
   const genderContainer = document.createElement('div'); // Создаем контейнер для пола
@@ -206,6 +233,12 @@ function showUserInfoForm() {
   ageCounter.appendChild(ageDisplay);
   ageCounter.appendChild(incrementButton);
 
+  const photoLabel = document.createElement('label'); // Метка для загрузки фотографии
+  photoLabel.textContent = 'Загрузите фотографию:';
+  const photoInput = document.createElement('input');
+  photoInput.type = 'file';
+  photoInput.accept = 'image/*'; // Ограничиваем тип файлов только изображениями
+
   formContainer.appendChild(nameLabel);
   formContainer.appendChild(nameInput);
 
@@ -214,6 +247,9 @@ function showUserInfoForm() {
   formContainer.appendChild(ageLabel);
   formContainer.appendChild(ageCounter);
 
+  formContainer.appendChild(photoLabel);
+  formContainer.appendChild(photoInput);
+
   const submitButton = document.createElement('button');
   submitButton.textContent = 'Подтвердить';
   submitButton.addEventListener('click', () => {
@@ -221,8 +257,28 @@ function showUserInfoForm() {
     const gender = maleCheckbox.checked ? 'М' : (femaleCheckbox.checked ? 'Ж' : 'Не выбран');
     const age = ageDisplay.textContent;
     if (name && gender !== 'Не выбран' && age >= 0) {
-      submitUserInfo(name, gender, age);
-      tableGrid.innerHTML = ''; // Очистка содержимого tableGrid при отправке данных
+      // Получаем выбранный файл фотографии
+      const photoFile = photoInput.files[0];
+
+      if (photoFile) {
+        // Создаем ссылку в Firebase Storage для сохранения фотографии
+        const storageReference = storageRef(`photo/${selectedTable}/${selectedSeat}/${name}.png`);
+
+        // Загружаем фотографию в Firebase Storage
+        uploadBytes(storageRef, photoFile).then((snapshot) => {
+          console.log('Uploaded a blob or file!');
+          // Получаем URL загруженной фотографии
+          getDownloadURL(snapshot.ref).then((downloadURL) => {
+            console.log('File available at', downloadURL);
+            submitUserInfo(name, gender, age, downloadURL);
+          });
+        }).catch((error) => {
+          console.error('Error uploading file:', error);
+        });
+      } else {
+        // Если фотография не выбрана, продолжаем без нее
+        submitUserInfo(name, gender, age, null);
+      }
     }
   });
 
@@ -236,29 +292,29 @@ function showUserInfoForm() {
   updateStageDisplay();
 }
 
-
-
-    
-    function submitUserInfo(name, gender) {
-      // Здесь вы можете записать информацию о пользователе, столе и месте в базу данных
-      // Или отобразить эту информацию пользователю
-      const tableRef = ref(db, `tables/${selectedTable}`);
-      get(tableRef).then(snapshot => {
-        const tableData = snapshot.val();
-        if (tableData && tableData.seats && tableData.seats[selectedSeat]) {
-          tableData.seats[selectedSeat].isOccupied = true;
-          tableData.seats[selectedSeat].guestName = name;
-          set(tableRef, tableData)
-            .then(() => {
-              const message = `Вы выбрали стол ${selectedTable + 1}, сиденье ${selectedSeat + 1}. Имя: ${name}, Пол: ${gender}`;
-              alert(message);
-              showTables();
-            })
-            .catch(error => {
-              console.error('Error updating table data:', error);
-            });
-        }
-      });
+function submitUserInfo(name, gender, age, photoURL) {
+  // Здесь вы можете записать информацию о пользователе, столе, месте и фотографии в базу данных
+  // Или отобразить эту информацию пользователю
+  const tableRef = ref(db, `tables/${selectedTable}`);
+  get(tableRef).then(snapshot => {
+    const tableData = snapshot.val();
+    if (tableData && tableData.seats && tableData.seats[selectedSeat]) {
+      tableData.seats[selectedSeat].isOccupied = true;
+      tableData.seats[selectedSeat].guestName = name;
+      tableData.seats[selectedSeat].gender = gender;
+      tableData.seats[selectedSeat].age = age;
+      tableData.seats[selectedSeat].photoURL = photoURL; // Сохраняем URL фотографии
+      set(tableRef, tableData)
+        .then(() => {
+          const message = `Вы выбрали стол ${selectedTable + 1}, сиденье ${selectedSeat + 1}. Имя: ${name}, Пол: ${gender}, Возраст: ${age}`;
+          alert(message);
+          showTables();
+        })
+        .catch(error => {
+          console.error('Error updating table data:', error);
+        });
     }
-    
-    showTables();
+  });
+}
+
+ showTables();

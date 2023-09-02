@@ -111,6 +111,8 @@ function showTables() {
 function showSeats() {
   currentStage = 2;
   tableGrid.innerHTML = '';
+  const wedding_img = document.getElementById('wedding_img');
+  wedding_img.style.display = "none";
   stageHeader.innerHTML = '<h1>Выберите место</h1>';
   const seatsContent = document.createElement('div');
   seatsContent.className = 'seats-content';
@@ -124,33 +126,13 @@ function showSeats() {
     const tableData = snapshot.val();
     if (tableData && tableData.seats) {
       for (let seatIndex = 0; seatIndex < seatsPerTable; seatIndex++) {
-        const seatElement = document.createElement('div');
-        seatElement.className = 'seat';
-        seatElement.textContent = `Сиденье ${seatIndex + 1}`;
-
+        const seatElement = createSeatElement(seatIndex, tableData.seats[seatIndex]);
+        
         if (seatIndex < 5) {
           seatsContainer1.appendChild(seatElement);
         } else {
           seatsContainer2.appendChild(seatElement);
         }
-        
-        if (!tableData.seats[seatIndex].isOccupied) {
-          seatElement.addEventListener('click', () => {
-            selectedSeat = seatIndex;
-            showUserInfoForm();
-          });
-        } else {
-          if (tableData.seats[seatIndex].photoURL) {
-            const seatImage = document.createElement('img');
-            seatImage.src = tableData.seats[seatIndex].photoURL;
-            seatImage.alt = tableData.seats[seatIndex].guestName;
-            seatElement.innerHTML = ''; // Clear any existing content
-            seatElement.appendChild(seatImage);
-          } else {
-            seatElement.classList.add('occupied');
-            seatElement.textContent = tableData.seats[seatIndex].guestName;
-          }
-        }        
       }
       seatsContent.appendChild(seatsContainer1);
       seatsContent.appendChild(seatsContainer2);
@@ -167,51 +149,117 @@ function showSeats() {
 }
 
 
+function showModal(guestName, tableNumber, seatNumber, photoURL) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close-modal" id="close-modal">&times;</span>
+      <div class="modal-body">
+        ${photoURL ? `<img src="${photoURL}" alt="${guestName}" class="seat-photo">` : ''}
+        <p>Стол: ${tableNumber}, Место: ${seatNumber}</p>
+      </div>
+    </div>
+  `;
+
+  modal.style.display = 'block';
+
+  const closeModalButton = modal.querySelector('#close-modal');
+  closeModalButton.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  document.body.appendChild(modal);
+}
+
+function createSeatElement(seatIndex, seatData) {
+  const seatElement = document.createElement('div');
+  seatElement.className = 'seat';
+  seatElement.textContent = `Сиденье ${seatIndex + 1}`;
+
+  if (seatData.isOccupied) {
+    if (seatData.photoURL) {
+      const seatImage = document.createElement('img');
+      seatImage.src = seatData.photoURL;
+      seatImage.alt = seatData.guestName;
+      seatElement.innerHTML = ''; // Очистка сиденья
+      seatElement.appendChild(seatImage);
+    } else {
+      seatElement.classList.add('occupied');
+      seatElement.textContent = seatData.guestName;
+    }
+    seatElement.addEventListener('click', () => {
+      showModal(seatData.guestName, selectedTable + 1, seatIndex + 1, seatData.photoURL);
+    });
+  } else {
+    seatElement.addEventListener('click', () => {
+      selectedSeat = seatIndex;
+      showUserInfoForm();
+    });
+  }
+
+  return seatElement;
+}
+
+showTables();
+
+
 function showUserInfoForm() {
   currentStage = 3;
   tableGrid.innerHTML = '';
   stageHeader.innerHTML = '<h1>Введите данные</h1>';
-
+  const wedding_img = document.getElementById('wedding_img');
+  wedding_img.style.display = "none";
   const formContainer = document.createElement('div');
   formContainer.className = 'form-container';
 
+  const nameContainer = document.createElement('div');
+  nameContainer.className = 'nameContainer';
   const nameLabel = document.createElement('label');
-  nameLabel.textContent = 'Имя:';
+  nameLabel.textContent = 'Как вас зовут?';
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
+  nameContainer.appendChild(nameLabel);
+  nameContainer.appendChild(nameInput);
 
+  const genderContainer = document.createElement('div');
+  genderContainer.className = 'genderContainer';
   const genderTitle = document.createElement('p');
-genderTitle.textContent = 'Ваш пол';
-const genderContainer = document.createElement('div');
-genderContainer.id = 'gender';
+  genderTitle.textContent = 'Ваш пол';
+  genderContainer.appendChild(genderTitle);
 
-const maleRadioDiv = document.createElement('div');
-const maleRadio = document.createElement('input');
-maleRadio.type = 'radio';
-maleRadio.name = 'gender';
-maleRadio.value = 'male';
-maleRadio.id = 'maleRadio'; // Добавьте id
-const maleLabel = document.createElement('label');
-maleLabel.textContent = 'М';
-maleLabel.htmlFor = 'maleRadio';
- 
-const femaleRadioDiv = document.createElement('div');
-const femaleRadio = document.createElement('input');
-femaleRadio.type = 'radio';
-femaleRadio.name = 'gender';
-femaleRadio.value = 'female';
-femaleRadio.id = 'femaleRadio'; // Добавьте id
-const femaleLabel = document.createElement('label');
-femaleLabel.textContent = 'Ж';
-femaleLabel.htmlFor = 'femaleRadio';
+  const genderDiv = document.createElement('div');
+  genderDiv.className = 'genderDiv';
 
-  genderContainer.appendChild(maleRadioDiv);
-  maleRadioDiv.appendChild(maleRadio);
-  maleRadioDiv.appendChild(maleLabel);
-  genderContainer.appendChild(femaleRadioDiv);
-  femaleRadioDiv.appendChild(femaleRadio);
-  femaleRadioDiv.appendChild(femaleLabel);
+  const maleContainer = document.createElement('div');
+  const maleLabel = document.createElement('label');
+  maleLabel.textContent = 'М';
+  const maleRadio = document.createElement('input');
+  maleRadio.type = 'radio';
+  maleRadio.name = 'gender';
+  maleRadio.value = 'male';
+  maleRadio.id = 'maleRadio';
+  maleContainer.appendChild(maleRadio);
+  maleContainer.appendChild(maleLabel);
 
+  const femaleContainer = document.createElement('div');
+  const femaleLabel = document.createElement('label');
+  femaleLabel.textContent = 'Ж';
+  const femaleRadio = document.createElement('input');
+  femaleRadio.type = 'radio';
+  femaleRadio.name = 'gender';
+  femaleRadio.value = 'female';
+  femaleRadio.id = 'femaleRadio';
+  femaleContainer.appendChild(femaleRadio);
+  femaleContainer.appendChild(femaleLabel);
+
+  genderDiv.appendChild(maleContainer);
+  genderDiv.appendChild(femaleContainer);
+
+  genderContainer.appendChild(genderDiv);
+
+  const ageContainer = document.createElement('div');
+  ageContainer.className = 'ageContainer';
   const ageLabel = document.createElement('label');
   ageLabel.textContent = 'Возраст:';
   const ageCounter = document.createElement('div');
@@ -236,27 +284,32 @@ femaleLabel.htmlFor = 'femaleRadio';
       ageDisplay.textContent = (currentAge - 1).toString();
     }
   });
+
   ageCounter.appendChild(decrementButton);
   ageCounter.appendChild(ageDisplay);
   ageCounter.appendChild(incrementButton);
 
+  ageContainer.appendChild(ageLabel);
+  ageContainer.appendChild(ageCounter);
+
+  const photoContainer = document.createElement('div');
+  photoContainer.className = 'photoContainer';
   const photoLabel = document.createElement('label');
   photoLabel.textContent = 'Загрузите фотографию:';
   const photoInput = document.createElement('input');
   photoInput.type = 'file';
   photoInput.accept = 'image/*';
-  const photoPreview = document.createElement('img'); // Create an image element for displaying the photo
-  photoPreview.id = 'photo-preview'; // Set an id for the image element
-  photoPreview.style.display = 'none'; // Initially hide the image element
-  photoPreview.style.maxWidth = '100%'; // Set maximum width for the image preview
-
+  const photoPreview = document.createElement('img');
+  photoPreview.id = 'photo-preview';
+  photoPreview.style.display = 'none';
+  photoPreview.style.maxWidth = '100%';
   photoInput.addEventListener('change', () => {
     const photoFile = photoInput.files[0];
     if (photoFile) {
       const reader = new FileReader();
       reader.onload = function (e) {
         photoPreview.src = e.target.result;
-        photoPreview.style.display = 'block'; // Show the image preview
+        photoPreview.style.display = 'block';
       };
       reader.readAsDataURL(photoFile);
     } else {
@@ -264,41 +317,39 @@ femaleLabel.htmlFor = 'femaleRadio';
       photoPreview.style.display = 'none';
     }
   });
-  formContainer.appendChild(photoLabel);
-  formContainer.appendChild(photoInput);
-  formContainer.appendChild(photoPreview);
-  formContainer.appendChild(nameLabel);
-  formContainer.appendChild(nameInput);
 
-  formContainer.appendChild(genderTitle);
+  photoContainer.appendChild(photoLabel);
+  photoContainer.appendChild(photoInput);
+  photoContainer.appendChild(photoPreview);
+
+  formContainer.appendChild(photoContainer);
+  formContainer.appendChild(nameContainer);
   formContainer.appendChild(genderContainer);
-  formContainer.appendChild(ageLabel);
-  formContainer.appendChild(ageCounter);
+  formContainer.appendChild(ageContainer);
 
   const submitButton = document.createElement('button');
   submitButton.textContent = 'Подтвердить';
   submitButton.addEventListener('click', () => {
     const name = nameInput.value;
-    const gender = maleCheckbox.checked ? 'М' : (femaleCheckbox.checked ? 'Ж' : 'Не выбран');
+    const gender = maleRadio.checked ? 'М' : (femaleRadio.checked ? 'Ж' : 'Не выбран');
     const age = ageDisplay.textContent;
     if (name && gender !== 'Не выбран' && age >= 0) {
       const photoFile = photoInput.files[0];
-
       if (photoFile) {
         const storageRef = storagesRef(storage, `photo/${selectedTable}/${selectedSeat}/${name}.png`);
-
         uploadBytes(storageRef, photoFile).then((snapshot) => {
           console.log('Uploaded a blob or file!');
           getDownloadURL(snapshot.ref).then((downloadURL) => {
             console.log('File available at', downloadURL);
-
             submitUserInfo(name, gender, age, downloadURL);
+            formContainer.style.visiblity = 'hidden';
           });
         }).catch((error) => {
           console.error('Error uploading file:', error);
         });
       } else {
         submitUserInfo(name, gender, age, null);
+        formContainer.style.visibility = 'hidden';
       }
     }
   });
@@ -307,10 +358,30 @@ femaleLabel.htmlFor = 'femaleRadio';
 
   tableGrid.appendChild(formContainer);
 
-
   backButton.addEventListener('click', showSeats);
   tableGrid.appendChild(backButton);
   updateStageDisplay();
+}
+
+
+function showConfirmationWindow(name, gender, age) {
+  const confirmationWindow = document.createElement('div');
+  confirmationWindow.className = 'custom-alert'; // Стили кастомного окна заданы в CSS
+
+  const confirmationText = document.createElement('p');
+  confirmationText.textContent = `Вы выбрали стол ${selectedTable + 1}, сиденье ${selectedSeat + 1}. Имя: ${name}, Пол: ${gender}, Возраст: ${age}`;
+  confirmationWindow.appendChild(confirmationText);
+
+  const returnButton = document.createElement('button');
+  returnButton.textContent = 'На главную';
+  returnButton.addEventListener('click', () => {
+    confirmationWindow.style.display = 'none';
+    showTables(); // Вернуться на главную страницу
+  });
+  confirmationWindow.appendChild(returnButton);
+
+  document.body.appendChild(confirmationWindow);
+  confirmationWindow.style.display = 'flex';
 }
 
 function submitUserInfo(name, gender, age, photoURL) {
@@ -326,9 +397,8 @@ function submitUserInfo(name, gender, age, photoURL) {
 
       set(tableRef, tableData)
         .then(() => {
-          const message = `Вы выбрали стол ${selectedTable + 1}, сиденье ${selectedSeat + 1}. Имя: ${name}, Пол: ${gender}, Возраст: ${age}`;
-          alert(message);
-          showTables();
+          // Здесь вызывается кастомное окно после подтверждения
+          showConfirmationWindow(name, gender, age);
         })
         .catch(error => {
           console.error('Error updating table data:', error);
@@ -336,5 +406,7 @@ function submitUserInfo(name, gender, age, photoURL) {
     }
   });
 }
+
+
 
 showTables();

@@ -21,6 +21,7 @@ const storage = getStorage();
 const stageIndicators = document.querySelectorAll('.stage-indicator');
 const backButton = document.createElement('button');
 backButton.textContent = 'Назад';
+backButton.className = "back-button";
 const tableGrid = document.getElementById('table-grid');
 const stageHeader = document.getElementById('stage-header');
 const tableInfo = document.createElement('p');
@@ -32,7 +33,7 @@ let selectedSeat = null;
 function updateStageDisplay() {
   stageIndicators.forEach(indicator => {
     const stage = parseInt(indicator.getAttribute('data-stage'));
-    if (stage === currentStage) {
+    if (stage <= currentStage) {
       indicator.classList.add('active');
     } else {
       indicator.classList.remove('active');
@@ -64,6 +65,8 @@ function showTables() {
   currentStage = 1;
   tableGrid.innerHTML = '';
   stageHeader.innerHTML = '<h1>Выберите стол</h1>';
+  const wedding_img = document.getElementById('wedding_img');
+  wedding_img.style.display = "flex";
   const totalTables = 4;
   const tablesContainer = document.createElement('div');
   tablesContainer.className = 'tables-container';
@@ -113,6 +116,7 @@ function showSeats() {
   tableGrid.innerHTML = '';
   const wedding_img = document.getElementById('wedding_img');
   wedding_img.style.display = "none";
+  backButton.style.display = "inline";
   stageHeader.innerHTML = '<h1>Выберите место</h1>';
   const seatsContent = document.createElement('div');
   seatsContent.className = 'seats-content';
@@ -157,6 +161,7 @@ function showModal(guestName, tableNumber, seatNumber, photoURL) {
       <span class="close-modal" id="close-modal">&times;</span>
       <div class="modal-body">
         ${photoURL ? `<img src="${photoURL}" alt="${guestName}" class="seat-photo">` : ''}
+        <p>Имя: ${guestName}</p>
         <p>Стол: ${tableNumber}, Место: ${seatNumber}</p>
       </div>
     </div>
@@ -203,13 +208,13 @@ function createSeatElement(seatIndex, seatData) {
 
 showTables();
 
-
 function showUserInfoForm() {
   currentStage = 3;
   tableGrid.innerHTML = '';
   stageHeader.innerHTML = '<h1>Введите данные</h1>';
   const wedding_img = document.getElementById('wedding_img');
   wedding_img.style.display = "none";
+  backButton.style.display = "inline";
   const formContainer = document.createElement('div');
   formContainer.className = 'form-container';
 
@@ -295,13 +300,14 @@ function showUserInfoForm() {
   const photoContainer = document.createElement('div');
   photoContainer.className = 'photoContainer';
   const photoLabel = document.createElement('label');
-  photoLabel.textContent = 'Загрузите фотографию:';
+  photoLabel.textContent = 'Загрузить фото:';
   const photoInput = document.createElement('input');
   photoInput.type = 'file';
   photoInput.accept = 'image/*';
+  photoInput.className = 'file-input';
   const photoPreview = document.createElement('img');
   photoPreview.id = 'photo-preview';
-  photoPreview.style.display = 'none';
+  photoPreview.style.display = 'block';
   photoPreview.style.maxWidth = '100%';
   photoInput.addEventListener('change', () => {
     const photoFile = photoInput.files[0];
@@ -317,15 +323,95 @@ function showUserInfoForm() {
       photoPreview.style.display = 'none';
     }
   });
-
   photoContainer.appendChild(photoLabel);
   photoContainer.appendChild(photoInput);
   photoContainer.appendChild(photoPreview);
+
+  const sideContainer = document.createElement('div');
+  sideContainer.className = 'sideContainer';
+
+  const sideText = document.createElement('div');
+  sideText.textContent = 'Я со стороны:';
+  sideText.className = 'sideText';
+
+  const sideOptions = document.createElement('div');
+  sideOptions.className = 'sideOptions';
+
+  const manDiv = document.createElement('div');
+  manDiv.className = 'sideOption';
+  const manImage = document.createElement('img');
+  manImage.src = 'man.png'; 
+  const manCheck = document.createElement('img');
+  manCheck.src = 'check.png';
+  manCheck.className = 'check';
+  manCheck.style.display = 'none'; 
+  manDiv.appendChild(manImage);
+  manDiv.appendChild(manCheck);
+
+  const womanDiv = document.createElement('div');
+  womanDiv.className = 'sideOption';
+  const womanImage = document.createElement('img');
+  womanImage.src = 'woman.png'; 
+  const womanCheck = document.createElement('img');
+  womanCheck.src = 'check.png'; 
+  womanCheck.className = 'check';
+  womanCheck.style.display = 'none';
+  womanDiv.appendChild(womanImage);
+  womanDiv.appendChild(womanCheck);
+
+  manDiv.addEventListener('click', () => {
+    manCheck.style.display = 'block';
+    womanCheck.style.display = 'none';
+  });
+
+  womanDiv.addEventListener('click', () => {
+    womanCheck.style.display = 'block';
+    manCheck.style.display = 'none';
+  });
+  sideOptions.appendChild(manDiv);
+  sideOptions.appendChild(womanDiv);
+  sideContainer.appendChild(sideText);
+  sideContainer.appendChild(sideOptions);
+
+  const guestContainer = document.createElement('div');
+  guestContainer.className = 'guestContainer';
+  
+  const guestText = document.createElement('div');
+  guestText.textContent = 'Со мной придут:';
+  guestText.className = 'guestText';
+  
+  const guestOptions = document.createElement('div');
+  guestOptions.className = 'guestOptions';
+  
+  const addGuestButton = document.createElement('button');
+  addGuestButton.textContent = 'Добавить гостя';
+  
+  addGuestButton.addEventListener('click', addGuestInputAboveButton);
+  
+  guestOptions.appendChild(addGuestButton);
+  
+  guestContainer.appendChild(guestText);
+  guestContainer.appendChild(guestOptions);
+  
+  function addGuestInputAboveButton() {
+    if (guestOptions.children.length < 4) {
+      const guestInput = document.createElement('input');
+      guestInput.type = 'text';
+      guestInput.placeholder = 'Имя гостя';
+  
+      guestOptions.insertBefore(guestInput, addGuestButton);
+    }
+  }
+  
+  addGuestInputAboveButton();
+
 
   formContainer.appendChild(photoContainer);
   formContainer.appendChild(nameContainer);
   formContainer.appendChild(genderContainer);
   formContainer.appendChild(ageContainer);
+  formContainer.appendChild(sideContainer);
+  formContainer.appendChild(guestContainer)
 
   const submitButton = document.createElement('button');
   submitButton.textContent = 'Подтвердить';
@@ -342,14 +428,16 @@ function showUserInfoForm() {
           getDownloadURL(snapshot.ref).then((downloadURL) => {
             console.log('File available at', downloadURL);
             submitUserInfo(name, gender, age, downloadURL);
-            formContainer.style.visiblity = 'hidden';
+            formContainer.style.display = 'none';
+            backButton.style.display = "none";
           });
         }).catch((error) => {
           console.error('Error uploading file:', error);
         });
       } else {
         submitUserInfo(name, gender, age, null);
-        formContainer.style.visibility = 'hidden';
+        formContainer.style.display = 'none';
+        backButton.style.display = "none";
       }
     }
   });
@@ -363,28 +451,36 @@ function showUserInfoForm() {
   updateStageDisplay();
 }
 
-
-function showConfirmationWindow(name, gender, age) {
+function showConfirmationWindow(name, gender, age ) {
   const confirmationWindow = document.createElement('div');
   confirmationWindow.className = 'custom-alert'; // Стили кастомного окна заданы в CSS
-
+  const img_done = document.createElement('img');
+  img_done.src = './img_done.png';
+  img_done.className = "img_done";
+  confirmationWindow.appendChild(img_done);
   const confirmationText = document.createElement('p');
   confirmationText.textContent = `Вы выбрали стол ${selectedTable + 1}, сиденье ${selectedSeat + 1}. Имя: ${name}, Пол: ${gender}, Возраст: ${age}`;
   confirmationWindow.appendChild(confirmationText);
-
+  
   const returnButton = document.createElement('button');
   returnButton.textContent = 'На главную';
   returnButton.addEventListener('click', () => {
     confirmationWindow.style.display = 'none';
-    showTables(); // Вернуться на главную страницу
+    showTables();
   });
   confirmationWindow.appendChild(returnButton);
-
+  
   document.body.appendChild(confirmationWindow);
   confirmationWindow.style.display = 'flex';
 }
 
-function submitUserInfo(name, gender, age, photoURL) {
+function submitUserInfo(name, gender, age, photoURL, side, guests) {
+  if (typeof side === 'undefined') {
+    side = 'Не указана'; 
+  }
+  if (typeof guests === 'undefined') {
+    guests = []; 
+  }
   const tableRef = databaseRef(db, `tables/${selectedTable}`);
   get(tableRef).then(snapshot => {
     const tableData = snapshot.val();
@@ -394,11 +490,14 @@ function submitUserInfo(name, gender, age, photoURL) {
       tableData.seats[selectedSeat].gender = gender;
       tableData.seats[selectedSeat].age = age;
       tableData.seats[selectedSeat].photoURL = photoURL;
-
+      tableData.seats[selectedSeat].side = side;
+      tableData.seats[selectedSeat].guests = guests; 
+      
       set(tableRef, tableData)
         .then(() => {
-          // Здесь вызывается кастомное окно после подтверждения
-          showConfirmationWindow(name, gender, age);
+          showConfirmationWindow(name, gender, age, side, guests);
+          formContainer.style.display = 'none';
+          showUserInfoForm();
         })
         .catch(error => {
           console.error('Error updating table data:', error);
@@ -406,7 +505,5 @@ function submitUserInfo(name, gender, age, photoURL) {
     }
   });
 }
-
-
 
 showTables();

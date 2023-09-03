@@ -352,6 +352,8 @@
 }
 
 @media(max-width: 420px) {
+  table {
   width: 80px;
   height: 150px;
+  }
 }

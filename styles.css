@@ -351,4 +351,7 @@
   color: white;
 }
 
-@media(max-width: 420px) {}
+@media(max-width: 420px) {
+  width: 80px;
+  height: 150px;
+}

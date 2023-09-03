@@ -180,7 +180,6 @@ function showModal(guestName, tableNumber, seatNumber, photoURL) {
 function createSeatElement(seatIndex, seatData) {
   const seatElement = document.createElement('div');
   seatElement.className = 'seat';
-  seatElement.textContent = `Сиденье ${seatIndex + 1}`;
 
   if (seatData.isOccupied) {
     if (seatData.photoURL) {
@@ -269,24 +268,30 @@ function showUserInfoForm() {
   ageLabel.textContent = 'Возраст:';
   const ageCounter = document.createElement('div');
   ageCounter.className = 'age-counter';
-  const ageDisplay = document.createElement('div');
-  ageDisplay.className = 'age-display';
-  ageDisplay.textContent = '0';
+  // const ageDisplay = document.createElement('div');
+  // ageDisplay.className = 'age-display';
+  // ageDisplay.textContent = '0';
+  const ageDisplay = document.createElement('input');
+  ageDisplay.type = 'text';
+  ageDisplay.pattern = '[0-9]{1,2}';
+  ageDisplay.maxLength = 2;
+  ageDisplay.className = 'age-input'; // Добавьте класс для стилизации, если необходимо
+  ageDisplay.value = '0';
   const incrementButton = document.createElement('button');
   incrementButton.textContent = '+';
   incrementButton.addEventListener('click', () => {
-    const currentAge = parseInt(ageDisplay.textContent);
+    const currentAge = parseInt(ageDisplay.value);
     if (!isNaN(currentAge)) {
-      ageDisplay.textContent = (currentAge + 1).toString();
+      ageDisplay.value = (currentAge + 1).toString();
     }
   });
 
   const decrementButton = document.createElement('button');
   decrementButton.textContent = '-';
   decrementButton.addEventListener('click', () => {
-    const currentAge = parseInt(ageDisplay.textContent);
+    const currentAge = parseInt(ageDisplay.value);
     if (!isNaN(currentAge) && currentAge > 0) {
-      ageDisplay.textContent = (currentAge - 1).toString();
+      ageDisplay.value = (currentAge - 1).toString();
     }
   });
 
@@ -400,11 +405,18 @@ function showUserInfoForm() {
       guestInput.placeholder = 'Имя гостя';
   
       guestOptions.insertBefore(guestInput, addGuestButton);
+  
+      guestInput.addEventListener('input', () => {
+        // При вводе имени гостя, добавляем его в массив гостей
+        const guestName = guestInput.value;
+        if (guestName) {
+          guests.push(guestName);
+        }
+      });
     }
-  }
+  }  
   
   addGuestInputAboveButton();
-
 
   formContainer.appendChild(photoContainer);
   formContainer.appendChild(nameContainer);
@@ -418,7 +430,23 @@ function showUserInfoForm() {
   submitButton.addEventListener('click', () => {
     const name = nameInput.value;
     const gender = maleRadio.checked ? 'М' : (femaleRadio.checked ? 'Ж' : 'Не выбран');
-    const age = ageDisplay.textContent;
+    const age = ageDisplay.value;
+    let sideText = '';
+    let guests = []; 
+  
+    if (maleRadio.checked) {
+      sideText = 'со стороны Жениха'; 
+    } else if (femaleRadio.checked) {
+      sideText = 'со стороны Невесты'; 
+    }
+  
+    const guestInputs = guestOptions.querySelectorAll('input[type="text"]');
+    guestInputs.forEach(input => {
+      if (input.value) {
+        guests.push(input.value);
+      }
+    });
+  
     if (name && gender !== 'Не выбран' && age >= 0) {
       const photoFile = photoInput.files[0];
       if (photoFile) {
@@ -427,7 +455,7 @@ function showUserInfoForm() {
           console.log('Uploaded a blob or file!');
           getDownloadURL(snapshot.ref).then((downloadURL) => {
             console.log('File available at', downloadURL);
-            submitUserInfo(name, gender, age, downloadURL);
+            submitUserInfo(name, gender, age, downloadURL, sideText, guests); // Передаем гостей в функцию
             formContainer.style.display = 'none';
             backButton.style.display = "none";
           });
@@ -435,7 +463,7 @@ function showUserInfoForm() {
           console.error('Error uploading file:', error);
         });
       } else {
-        submitUserInfo(name, gender, age, null);
+        submitUserInfo(name, gender, age, null, sideText, guests); // Передаем гостей в функцию
         formContainer.style.display = 'none';
         backButton.style.display = "none";
       }
@@ -451,7 +479,7 @@ function showUserInfoForm() {
   updateStageDisplay();
 }
 
-function showConfirmationWindow(name, gender, age ) {
+function showConfirmationWindow(name, gender, age, side, guests) {
   const confirmationWindow = document.createElement('div');
   confirmationWindow.className = 'custom-alert'; // Стили кастомного окна заданы в CSS
   const img_done = document.createElement('img');
@@ -459,7 +487,7 @@ function showConfirmationWindow(name, gender, age ) {
   img_done.className = "img_done";
   confirmationWindow.appendChild(img_done);
   const confirmationText = document.createElement('p');
-  confirmationText.textContent = `Вы выбрали стол ${selectedTable + 1}, сиденье ${selectedSeat + 1}. Имя: ${name}, Пол: ${gender}, Возраст: ${age}`;
+  confirmationText.textContent = `Вы выбрали стол ${selectedTable + 1}, сиденье ${selectedSeat + 1}. Имя: ${name}, Пол: ${gender}, Возраст: ${age}, Сторона: ${side}, Гости: ${guests.join(', ')}`;
   confirmationWindow.appendChild(confirmationText);
   
   const returnButton = document.createElement('button');
@@ -488,14 +516,14 @@ function submitUserInfo(name, gender, age, photoURL, side, guests) {
       tableData.seats[selectedSeat].isOccupied = true;
       tableData.seats[selectedSeat].guestName = name;
       tableData.seats[selectedSeat].gender = gender;
-      tableData.seats[selectedSeat].age = age;
+      tableData.seats[selectedSeat].age = age; 
       tableData.seats[selectedSeat].photoURL = photoURL;
       tableData.seats[selectedSeat].side = side;
       tableData.seats[selectedSeat].guests = guests; 
       
       set(tableRef, tableData)
         .then(() => {
-          showConfirmationWindow(name, gender, age, side, guests);
+          showConfirmationWindow(name, gender, age, side, guests); // Обновление возраста в функции подтверждения
           formContainer.style.display = 'none';
           showUserInfoForm();
         })
@@ -505,5 +533,6 @@ function submitUserInfo(name, gender, age, photoURL, side, guests) {
     }
   });
 }
+
 
 showTables();

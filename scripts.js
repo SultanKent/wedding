@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-analytics.js";
 import { getDatabase, ref as databaseRef, get, set } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-database.js";
+import { remove } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-database.js";
 import { getStorage, uploadBytes, getDownloadURL, ref as storagesRef } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -112,97 +113,120 @@ function showTables() {
 }
 
 function showSeats() {
-  currentStage = 2;
-  tableGrid.innerHTML = '';
-  const wedding_img = document.getElementById('wedding_img');
-  wedding_img.style.display = "none";
-  backButton.style.display = "inline";
-  stageHeader.innerHTML = '<h1>Выберите место</h1>';
-  const seatsContent = document.createElement('div');
-  seatsContent.className = 'seats-content';
-  const seatsContainer1 = document.createElement('div');
-  seatsContainer1.className = 'seats';
-  const seatsContainer2 = document.createElement('div');
-  seatsContainer2.className = 'seats';
-  const seatsPerTable = 10;
-  const tableRef = databaseRef(db, `tables/${selectedTable}`);
-  get(tableRef).then(snapshot => {
-    const tableData = snapshot.val();
-    if (tableData && tableData.seats) {
-      for (let seatIndex = 0; seatIndex < seatsPerTable; seatIndex++) {
-        const seatElement = createSeatElement(seatIndex, tableData.seats[seatIndex]);
-        
-        if (seatIndex < 5) {
-          seatsContainer1.appendChild(seatElement);
-        } else {
-          seatsContainer2.appendChild(seatElement);
+    currentStage = 2;
+    tableGrid.innerHTML = '';
+    const wedding_img = document.getElementById('wedding_img');
+    wedding_img.style.display = "none";
+    backButton.style.display = "inline";
+    stageHeader.innerHTML = '<h1>Выберите место</h1>';
+    const seatsContent = document.createElement('div');
+    seatsContent.className = 'seats-content';
+    const seatsContainer1 = document.createElement('div');
+    seatsContainer1.className = 'seats';
+    const seatsContainer2 = document.createElement('div');
+    seatsContainer2.className = 'seats';
+    const seatsPerTable = 10;
+    const tableRef = databaseRef(db, `tables/${selectedTable}`);
+    get(tableRef).then(snapshot => {
+        const tableData = snapshot.val();
+        if (tableData && tableData.seats) {
+            for (let seatIndex = 0; seatIndex < seatsPerTable; seatIndex++) {
+                const seatElement = createSeatElement(seatIndex, tableData.seats[seatIndex]);
+                
+                if (seatIndex < 5) {
+                    seatsContainer1.appendChild(seatElement);
+                } else {
+                    seatsContainer2.appendChild(seatElement);
+                }
+            }
+            seatsContent.appendChild(seatsContainer1);
+            seatsContent.appendChild(seatsContainer2);
+            tableInfo.textContent = `Стол ${selectedTable + 1}`;
+            tableGrid.appendChild(tableInfo);
+            tableGrid.appendChild(seatsContent);
+            backButton.removeEventListener('click', showSeats);
+            backButton.removeEventListener('click', showUserInfoForm);
+            backButton.addEventListener('click', showTables);
+            tableGrid.appendChild(backButton);
+            updateStageDisplay();
         }
-      }
-      seatsContent.appendChild(seatsContainer1);
-      seatsContent.appendChild(seatsContainer2);
-      tableInfo.textContent = `Стол ${selectedTable + 1}`;
-      tableGrid.appendChild(tableInfo);
-      tableGrid.appendChild(seatsContent);
-      backButton.removeEventListener('click', showSeats);
-      backButton.removeEventListener('click', showUserInfoForm);
-      backButton.addEventListener('click', showTables);
-      tableGrid.appendChild(backButton);
-      updateStageDisplay();
-    }
-  });
+    });
 }
 
-
 function showModal(guestName, tableNumber, seatNumber, photoURL) {
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.innerHTML = `
-    <div class="modal-content">
-      <span class="close-modal" id="close-modal">&times;</span>
-      <div class="modal-body">
-        ${photoURL ? `<img src="${photoURL}" alt="${guestName}" class="seat-photo">` : ''}
-        <p>Имя: ${guestName}</p>
-        <p>Стол: ${tableNumber}, Место: ${seatNumber}</p>
-      </div>
-    </div>
-  `;
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <div class="modal-body">
+                ${photoURL ? `<img src="${photoURL}" alt="${guestName}" class="seat-photo">` : ''}
+                <p>Имя: ${guestName}</p>
+                <p>Стол: ${tableNumber}, Место: ${seatNumber}</p>
+                <button id="delete-seat">Удалить место</button>
+            </div>
+        </div>
+    `;
 
-  modal.style.display = 'block';
+    modal.style.display = 'block';
 
-  const closeModalButton = modal.querySelector('#close-modal');
-  closeModalButton.addEventListener('click', () => {
-    modal.style.display = 'none';
-  });
-
-  document.body.appendChild(modal);
+    const closeModalButton = modal.querySelector('#close-modal');
+    closeModalButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    const deleteButton = modal.querySelector('#delete-seat');
+    deleteButton.addEventListener('click', () => {
+        // Reset seat data to empty values
+        const emptySeatData = {
+            isOccupied: false,
+            guestName: "",
+            gender: "",
+            age: 0,
+            photo: "",
+            side: "",
+            guests: []
+        };
+        const seatIndex = selectedSeat; // Capture the selected seatIndex
+        const seatRef = databaseRef(db, `tables/${selectedTable}/seats/${seatIndex}`);
+        set(seatRef, emptySeatData)
+            .then(() => {
+                modal.style.display = 'none';
+                showSeats(); // Refresh seats display
+            })
+            .catch(error => {
+                console.error('Error deleting seat:', error);
+            });
+    });
+    document.body.appendChild(modal);
 }
 
 function createSeatElement(seatIndex, seatData) {
-  const seatElement = document.createElement('div');
-  seatElement.className = 'seat';
+    const seatElement = document.createElement('div');
+    seatElement.className = 'seat';
 
-  if (seatData.isOccupied) {
-    if (seatData.photoURL) {
-      const seatImage = document.createElement('img');
-      seatImage.src = seatData.photoURL;
-      seatImage.alt = seatData.guestName;
-      seatElement.innerHTML = ''; // Очистка сиденья
-      seatElement.appendChild(seatImage);
+    if (seatData.isOccupied) {
+        if (seatData.photoURL) {
+            const seatImage = document.createElement('img');
+            seatImage.src = seatData.photoURL;
+            seatImage.alt = seatData.guestName;
+            seatElement.innerHTML = ''; // Очистка сиденья
+            seatElement.appendChild(seatImage);
+        } else {
+            seatElement.classList.add('occupied');
+            seatElement.textContent = seatData.guestName;
+        }
+        seatElement.addEventListener('click', () => {
+            showModal(seatData.guestName, selectedTable + 1, seatIndex + 1, seatData.photoURL);
+            selectedSeat = seatIndex; // Set the selected seatIndex
+        });
     } else {
-      seatElement.classList.add('occupied');
-      seatElement.textContent = seatData.guestName;
+        seatElement.addEventListener('click', () => {
+            selectedSeat = seatIndex;
+            showUserInfoForm();
+        });
     }
-    seatElement.addEventListener('click', () => {
-      showModal(seatData.guestName, selectedTable + 1, seatIndex + 1, seatData.photoURL);
-    });
-  } else {
-    seatElement.addEventListener('click', () => {
-      selectedSeat = seatIndex;
-      showUserInfoForm();
-    });
-  }
 
-  return seatElement;
+    return seatElement;
 }
 
 showTables();
